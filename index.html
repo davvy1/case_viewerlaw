@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Daily Case Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .add-btn {
+            background: #1e88e5;
+            color: white;
+        }
+
+        .case-item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        .actions button {
+            width: auto;
+            margin-left: 5px;
+            padding: 5px 8px;
+            font-size: 12px;
+        }
+
+        .complete-btn {
+            background: green;
+            color: white;
+        }
+
+        .delete-btn {
+            background: red;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .case-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .actions {
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Daily Case Manager</h1>
+
+<div class="container">
+    <input type="text" id="caseInput" placeholder="Enter case name (e.g., RERA Matter - 11 AM)">
+    <button class="add-btn" onclick="addCase()">Add Case</button>
+
+    <div id="caseList"></div>
+</div>
+
+<script>
+    let cases = JSON.parse(localStorage.getItem("cases")) || [];
+
+    function saveCases() {
+        localStorage.setItem("cases", JSON.stringify(cases));
+    }
+
+    function renderCases() {
+        const list = document.getElementById("caseList");
+        list.innerHTML = "";
+
+        cases.forEach((caseItem, index) => {
+            const div = document.createElement("div");
+            div.className = "case-item";
+
+            const span = document.createElement("span");
+            span.textContent = caseItem.name;
+            if (caseItem.completed) {
+                span.classList.add("completed");
+            }
+
+            const actions = document.createElement("div");
+            actions.className = "actions";
+
+            const completeBtn = document.createElement("button");
+            completeBtn.textContent = "✓";
+            completeBtn.className = "complete-btn";
+            completeBtn.onclick = () => toggleComplete(index);
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "X";
+            deleteBtn.className = "delete-btn";
+            deleteBtn.onclick = () => deleteCase(index);
+
+            actions.appendChild(completeBtn);
+            actions.appendChild(deleteBtn);
+
+            div.appendChild(span);
+            div.appendChild(actions);
+            list.appendChild(div);
+        });
+    }
+
+    function addCase() {
+        const input = document.getElementById("caseInput");
+        const caseName = input.value.trim();
+        if (caseName === "") return;
+
+        cases.push({ name: caseName, completed: false });
+        input.value = "";
+        saveCases();
+        renderCases();
+    }
+
+    function toggleComplete(index) {
+        cases[index].completed = !cases[index].completed;
+        saveCases();
+        renderCases();
+    }
+
+    function deleteCase(index) {
+        cases.splice(index, 1);
+        saveCases();
+        renderCases();
+    }
+
+    renderCases();
+</script>
+
+</body>
+</html>
